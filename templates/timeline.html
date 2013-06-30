@@ -8,7 +8,7 @@
   <h2>{{ self.title() }}</h2>
   {% if profile_company %}
       <div class=twitbox>
-          <h3>What's on your mind about {{ profile_company.company_name}}({{profile_company.company_id}})?</h3>
+          <h3>What's on your mind about {{ profile_company.company_name}}</h3>
         <form action="{{ url_for('add_message', company_id=profile_company.company_id) }}" method=post>
           <p><input type=text name=text size=60><!--
           --><input type=submit value="Share">

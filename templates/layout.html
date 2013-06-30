@@ -1,0 +1,28 @@
+<!doctype html>
+<title>{% block title %}Welcome{% endblock %} | MiniTwit</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+  <h1>取个啥名</h1>
+  <div class=navigation>
+    <a href="{{ url_for('public_timeline') }}">全部</a> |
+	{% for company in companys %}
+	    <a href="{{ url_for('company_timeline',company_name=company.company_name) }}">{{ company.company_name }}</a>
+	{% endfor %}
+    | <a href="{{ url_for('add_company') }}">添加槽点</a> 
+  </div>
+  {% with flashes = get_flashed_messages() %}
+    {% if flashes %}
+      <ul class=flashes>
+      {% for message in flashes %}
+        <li>{{ message }}
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  <div class=body>
+  {% block body %}{% endblock %}
+  </div>
+  <div class=footer>
+      欢迎各界人士前来吐槽
+  </div>
+</div>

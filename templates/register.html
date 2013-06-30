@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block body %}
+  <h2>Add Company</h2>
+  {% if error %}<div class=error><strong>Error:</strong> {{ error }}</div>{% endif %}
+  <form action="" method=post>
+    <dl>
+      <dt>Company Name:
+      <dd><input type=text name=company_name size=30 value="{{ request.form.company_name}}">
+    </dl>
+    <div class=actions><input type=submit value="Add"></div>
+  </form>
+{% endblock %}

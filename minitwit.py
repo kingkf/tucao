@@ -78,8 +78,6 @@ def format_datetime(timestamp):
 
 
 
-@app.before_request
-def before_request():
     g.user = None
     if 'user_id' in session:
         g.user = query_db('select * from user where user_id = ?',
@@ -92,17 +90,7 @@ def timeline():
     redirect to the public timeline.  This timeline shows the user's
     messages as well as all the messages of followed users.
     """
-    if not g.user:
-        return redirect(url_for('public_timeline'))
-    return render_template('timeline.html', messages=query_db('''
-        select message.*, user.* from message, user
-        where message.author_id = user.user_id and (
-            user.user_id = ? or
-            user.user_id in (select whom_id from follower
-                                    where who_id = ?))
-        order by message.pub_date desc limit ?''',
-        [session['user_id'], session['user_id'], PER_PAGE]))
-
+    return redirect(url_for('public_timeline'))
 
 @app.route('/public')
 def public_timeline():

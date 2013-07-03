@@ -1,6 +1,11 @@
 <!doctype html>
 <title>{% block title %}Welcome{% endblock %} | MiniTwit</title>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<script type=text/javascript
+	  src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script type=text/javascript>
+	    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
 <div class=page>
   <h1>取个啥名</h1>
   <div class=navigation>
@@ -26,3 +31,4 @@
       欢迎各界人士前来吐槽
   </div>
 </div>
+

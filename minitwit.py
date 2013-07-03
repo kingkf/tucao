@@ -13,7 +13,7 @@ import time
 from sqlite3 import dbapi2 as sqlite3
 from datetime import datetime
 from flask import Flask, request, session, url_for, redirect, \
-     render_template, abort, g, flash, _app_ctx_stack
+     render_template, abort, g, flash, _app_ctx_stack, jsonify
 import os
 
 
@@ -154,6 +154,16 @@ def add_company():
             return redirect(url_for('company_timeline', company_name=request.form['company_name']))
     return render_template('register.html', error=error)
 
+@app.route('/show/comments/<message_id>/')
+def show_comment(message_id):
+    print "xxoo"
+    comments = query_db('''
+    select * from comments where comments.message_id=?''', message_id)
+    return jsonify(comments=comments)
+@app.route("/xxoo")
+def xxoo():
+    print 'xxx'
+    return jsonify(a=1)
 
 # add some filters to jinja
 app.jinja_env.filters['datetimeformat'] = format_datetime

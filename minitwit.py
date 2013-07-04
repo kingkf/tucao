@@ -124,7 +124,6 @@ def company_timeline(company_name):
 def add_message(company_id):
     """post a new message for the company."""
     if request.form['text']:
-        print company_id
         db = get_db()
         db.execute('''insert into message (company_id, text, pub_date)
           values (?, ?, ?)''', (company_id, request.form['text'],
@@ -156,10 +155,29 @@ def add_company():
 
 @app.route('/show/comments/<message_id>/')
 def show_comment(message_id):
-    print "xxoo"
     comments = query_db('''
     select * from comments where comments.message_id=?''', message_id)
-    return jsonify(comments=comments)
+    print type(comments)
+    commentdict={}
+    for i in range(len(comments)):
+        temp={}
+        temp['text']=comments[i]['comment_text']
+        temp['date']=comments[i]['pub_date']
+        commentdict[str(i)]=temp
+    return jsonify(**commentdict)
+
+@app.route('/add/comment/<message_id>/', methods=['POST'])
+def add_comment(message_id):
+    if request.method == 'POST':
+        text = request.form['text']
+        db = get_db()
+        db.execute('''insert into comments (comment_text, message_id, pub_date)
+                      values (?,?,?)''', (text, message_id, int(time.time())))
+        db.commit()
+        return "success"
+
+
+
 @app.route("/xxoo")
 def xxoo():
     print 'xxx'

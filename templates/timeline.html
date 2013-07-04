@@ -19,12 +19,11 @@
 	$(document).ready(function() {
 	 $('.comment').bind("click", function() {
                  // alert($(this));
-                  //debugger;
                   //var id = $(this).data('xxx');
                   //var a = $(this);
                   //var id = $(this).attr("data-id");
                   var id = $(this).data('id');
-                  //alert(id);
+                  alert(id);
 		  $.ajax({
 			  type:"GET",
                           url:"/show/comments/" + id +"/",
@@ -32,20 +31,43 @@
 				  $(this).attr("disabled", true).val("请求中");
 			  },
 			  success:function(data) {
-				  //alert(data.comments)
-				  //var jsonresult=JSON.parse(data);
-                                 // alert(id);
 				  //var divbox="<div id=comment_list>xxx</div>"
-                                  var str = "#comment_"+id;
-                                 // alert(str);
-                                  $(str).html("xxoo");
-		                  $(str).toggle();
-                                  //a.find('.comment_list').toggle();
+				  var divbox = "";
+				  for (var i in data) {
+				  divbox += "<div>"+data[i].text+"</div>";
+				  }
+                  var str = "#comment_"+id;
+                  $(str).html(divbox);
+		          $(str).toggle();
 				  $("#form_"+id).toggle();
 			  }
 		  });
 		  
 	 }); 
+	 $('.submit_comment').click(function() {
+			 var id = $(this).data('id');
+			 var newcomment = $("#input_"+id).val();
+			 //alert($("#input_"+id).val());
+			 $.ajax({
+               type: "POST",
+			   url: "/add/comment/"+id+"/",
+			   data: {'text':newcomment},
+			   //data:"mlgb",
+			   success: function(data) {
+			       alert(data);
+				   if (data=="success") {
+				      $("#input_"+id).val("");
+					  var comments = $("#comment_"+id).html();
+					  comments = comments + "<div>"+newcomment+"</div>";
+					  alert(comments);
+					  $("#comment_"+id).html(comments);
+
+				   }
+			   }
+			   });
+			 });
+
+	 
 
 
  });
@@ -60,10 +82,10 @@
 	  </p>
 	  <div id=comment_{{message.message_id}} style="display:none;">
 	  </div>
-	  <form method="post" style="display:none;" id=form_{{message.message_id}}>
-	      <input type="text" name="text">
-		  <input type="submit" value="发表评论" id=submit_comment_{{message.message_id}} data-id="{{message.message_id}}">
-          </form>
+	  <form method="POST" action="/add/comment/{{message.message_id}}/" style="display:none;" id=form_{{message.message_id}}>
+		  <input type="text" name="text" id=input_{{message.message_id}}>
+		  <input type="button" value="发表评论" class=submit_comment data-id="{{message.message_id}}">
+      </form>
 
   </li>
   {% else %}

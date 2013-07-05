@@ -18,23 +18,17 @@
   <script type="text/javascript">
 	$(document).ready(function() {
 	 $('.comment').bind("click", function() {
-                 // alert($(this));
-                  //var id = $(this).data('xxx');
-                  //var a = $(this);
-                  //var id = $(this).attr("data-id");
-                  var id = $(this).data('id');
-                  alert(id);
+          var id = $(this).data('id');
 		  $.ajax({
 			  type:"GET",
-                          url:"/show/comments/" + id +"/",
+              url:"/show/comments/" + id +"/",
 			  beforeSend: function() {
-				  $(this).attr("disabled", true).val("请求中");
+			  $(this).attr("disabled", true).val("请求中");
 			  },
 			  success:function(data) {
-				  //var divbox="<div id=comment_list>xxx</div>"
 				  var divbox = "";
 				  for (var i in data) {
-				  divbox += "<div>"+data[i].text+"</div>";
+				      divbox += "<div>"+data[i].text+"</div>";
 				  }
                   var str = "#comment_"+id;
                   $(str).html(divbox);
@@ -47,19 +41,15 @@
 	 $('.submit_comment').click(function() {
 			 var id = $(this).data('id');
 			 var newcomment = $("#input_"+id).val();
-			 //alert($("#input_"+id).val());
 			 $.ajax({
                type: "POST",
 			   url: "/add/comment/"+id+"/",
 			   data: {'text':newcomment},
-			   //data:"mlgb",
 			   success: function(data) {
-			       alert(data);
 				   if (data=="success") {
 				      $("#input_"+id).val("");
 					  var comments = $("#comment_"+id).html();
 					  comments = comments + "<div>"+newcomment+"</div>";
-					  alert(comments);
 					  $("#comment_"+id).html(comments);
 
 				   }

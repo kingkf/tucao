@@ -156,7 +156,7 @@ def add_company():
 @app.route('/show/comments/<message_id>/')
 def show_comment(message_id):
     comments = query_db('''
-    select * from comments where comments.message_id=?''', message_id)
+    select * from comments where comments.message_id=?''', [message_id])
     print type(comments)
     commentdict={}
     for i in range(len(comments)):
@@ -168,6 +168,7 @@ def show_comment(message_id):
 
 @app.route('/add/comment/<message_id>/', methods=['POST'])
 def add_comment(message_id):
+    message_id = int(message_id)
     if request.method == 'POST':
         text = request.form['text']
         db = get_db()

@@ -75,7 +75,7 @@ def get_company_id(company_name):
 def format_datetime(timestamp):
     """Format a timestamp for display."""
     #return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d @ %H:%M')
-    return time.strftime('%Y-%m-%d @ %H:%M', time.localtime(time.time()))
+    return time.strftime('%Y-%m-%d @ %H:%M', time.localtime(timestamp))
 
 
 

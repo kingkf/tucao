@@ -68,7 +68,7 @@
       <strong><a href="{{ url_for('company_timeline', company_name=message.company_name)
       }}">{{ message.company_name }}</a></strong>
 	  {{ message.text }} 
-	  <small>&mdash; {{ message.pub_date|datetimeformat }}  <a class="comment" data-id="{{message.message_id}}">评论</a></small>
+	  <small>&mdash; {{ message.pub_date|datetimeformat }}  <a class="comment" data-id="{{message.message_id}}" href="javascript:void(0);">评论</a></small>
 	  </p>
 	  <div id=comment_{{message.message_id}} style="display:none;">
 	  </div>
@@ -82,4 +82,32 @@
     <li><em>There's no message so far.</em>
   {% endfor %}
   </ul>
+  <div><a>{{total_page}}页</a>
+      {% if now_page > 1 %}
+        {% if profile_company %}
+        <a href="/{{profile_company.company_name}}/{{now_page-1}}/">上一页</a>
+        {% else %}
+        <a href="/public/page/{{now_page-1}}/">上一页</a>
+        {% endif %}
+      {% endif %}
+      {% for i in page_list %}
+        {% if i == now_page %}
+          <a>{{i}}</a>
+        {% elif profile_company %}
+        <a href="/{{profile_company.company_name}}/{{i}}/">{{i}}</a>
+        {% else %}
+        <a href="/public/page/{{i}}/">{{i}}</a>
+        {% endif %}
+      {% endfor %}
+      {% if now_page > 0 and now_page < total_page %}
+        {% if profile_company %}
+        <a href="/{{profile_company.company_name}}/{{now_page+1}}/">下一页</a>
+        {% else %}
+        <a href="/public/page/{{now_page+1}}/">下一页</a>
+        {% endif %}
+      {% endif %}
+
+  </div>
+
+
 {% endblock %}

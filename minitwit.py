@@ -20,7 +20,7 @@ import os
 # configuration
 path = os.path.dirname(os.path.abspath(__file__))
 DATABASE = path + '/miniTwit.db'
-PER_PAGE = 30
+PER_PAGE = 20
 DEBUG = True
 SECRET_KEY = 'development key'
 
@@ -93,32 +93,80 @@ def timeline():
     """
     return redirect(url_for('public_timeline'))
 
+@app.route('/public/page/<int:page_number>/')
 @app.route('/public')
-def public_timeline():
+def public_timeline(page_number=1):
     """Displays the latest messages of all users."""
-    return render_template('timeline.html', messages=query_db('''
-        select message.*, company.* from message, company
-        where message.company_id = company.company_id
-        order by message.pub_date desc limit ?''', [PER_PAGE]), companys=query_db('''
-        select company_name from company''')
+    total_message = query_db('''select count(*) from message''') #为什么返回值会是[(num,)]这么奇葩的东西
+    total_message = total_message[0][0]
+    print total_message
+    total_page = 1
+    lastpage_num  = 0
+    if total_message % PER_PAGE == 0:
+        total_page =  total_message / PER_PAGE
+        if total_message != 0:
+            lastpage_num = PER_PAGE
+    else:
+        total_page = total_message / PER_PAGE + 1
+        lastpage_num = total_message % PER_PAGE
+    begin = PER_PAGE*(page_number-1) + 1
+    end = PER_PAGE
+    if page_number== total_page:
+        end = total_message
+    else:
+        end = PER_PAGE*page_number
 
+    print begin, end
+
+    return render_template('timeline.html', 
+            messages=query_db('''
+                     select message.*, company.* from message, company
+                     where message.company_id = company.company_id
+                     order by message.pub_date desc limit ?,?''', [begin-1, end-begin+1]), #表示从第begin-1个开始，取end-begin+1,如果要移植数据库注意
+            companys=query_db('''select company_name from company'''),
+            now_page=page_number,
+            total_page=total_page,
+            page_list=[i for i in range(1, total_page+1)],
         )
 
 
+@app.route('/<company_name>/<int:page_number>/')
 @app.route('/<company_name>')
-def company_timeline(company_name):
+def company_timeline(company_name, page_number=1):
     """Display's a company bullshit."""
     profile_company = query_db('select * from company where company_name= ?',
                             [company_name], one=True)
     if profile_company is None:
         abort(404)
+    total_message = query_db('''select count(*) from message where message.company_id = ?''', [profile_company['company_id']])
+    total_message = total_message[0][0]
+    total_page = 1
+    lastpage_num  = 0
+    if total_message % PER_PAGE == 0:
+        total_page =  total_message / PER_PAGE
+        if total_message != 0:
+            lastpage_num = PER_PAGE
+    else:
+        total_page = total_message / PER_PAGE + 1
+        lastpage_num = total_message % PER_PAGE
+    begin = PER_PAGE*(page_number-1) + 1
+    end = PER_PAGE
+    if page_number== total_page:
+        end = total_message
+    else:
+        end = PER_PAGE*page_number
     return render_template('timeline.html', messages=query_db('''
             select message.*, company.* from message, company where
             company.company_id= message.company_id and company.company_id= ?
-            order by message.pub_date desc limit ?''',
-            [profile_company['company_id'], PER_PAGE]),
+            order by message.pub_date desc limit ? , ?''',
+            [profile_company['company_id'], begin-1, end-begin+1]),
             profile_company=profile_company,
-            companys=query_db('''select company_name from company'''))
+            companys=query_db('''select company_name from company'''),
+            now_page=page_number,
+            total_page=total_page,
+            page_list=[i for i in range(1, total_page+1)],
+            
+            )
 
 
 @app.route('/add_message/<company_id>', methods=['POST'])
@@ -152,7 +200,7 @@ def add_company():
             db.commit()
             flash('add success')
             return redirect(url_for('company_timeline', company_name=request.form['company_name']))
-    return render_template('register.html', error=error)
+    return render_template('register.html', error=error, companys=query_db('''select company_name from company'''))
 
 @app.route('/show/comments/<message_id>/')
 def show_comment(message_id):

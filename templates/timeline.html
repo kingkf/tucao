@@ -8,10 +8,10 @@
   <h2>{{ self.title() }}</h2>
   {% if profile_company %}
       <div class=twitbox>
-          <h3>What's on your mind about {{ profile_company.company_name}}</h3>
+          <h3>对于{{ profile_company.company_name}}你有啥不爽？</h3>
         <form action="{{ url_for('add_message', company_id=profile_company.company_id) }}" method=post>
           <p><input type=text name=text size=60><!--
-          --><input type=submit value="Share">
+          --><input type=submit value="一吐为快">
         </form>
       </div>
   {% endif %}
@@ -79,7 +79,7 @@
 
   </li>
   {% else %}
-    <li><em>There's no message so far.</em>
+  <li><em> 现在还没有消息，添加点吧</em>
   {% endfor %}
   </ul>
   <div><a>{{total_page}}页</a>

@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
-{% block title %}Sign Up{% endblock %}
+{% block title %}添加槽点{% endblock %}
 {% block body %}
-  <h2>Add Company</h2>
+  <h2>添加槽点</h2>
   {% if error %}<div class=error><strong>Error:</strong> {{ error }}</div>{% endif %}
   <form action="" method=post>
     <dl>
-      <dt>Company Name:
+      <dt>想黑谁?
       <dd><input type=text name=company_name size=30 value="{{ request.form.company_name}}">
     </dl>
-    <div class=actions><input type=submit value="Add"></div>
+    <div class=actions><input type=submit value="添加"></div>
   </form>
 {% endblock %}

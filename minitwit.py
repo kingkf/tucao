@@ -13,7 +13,7 @@ import time
 from sqlite3 import dbapi2 as sqlite3
 from datetime import datetime
 from flask import Flask, request, session, url_for, redirect, \
-     render_template, abort, g, flash, _app_ctx_stack, jsonify
+    render_template, abort, g, flash, _app_ctx_stack, jsonify
 import os
 
 
@@ -74,10 +74,8 @@ def get_company_id(company_name):
 
 def format_datetime(timestamp):
     """Format a timestamp for display."""
-    #return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d @ %H:%M')
+    # return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d @ %H:%M')
     return time.strftime('%Y-%m-%d @ %H:%M', time.localtime(timestamp))
-
-
 
     g.user = None
     if 'user_id' in session:
@@ -93,17 +91,19 @@ def timeline():
     """
     return redirect(url_for('public_timeline'))
 
+
 @app.route('/public/page/<int:page_number>/')
 @app.route('/public')
 def public_timeline(page_number=1):
     """Displays the latest messages of all users."""
-    total_message = query_db('''select count(*) from message''') #为什么返回值会是[(num,)]这么奇葩的东西
+    total_message = query_db(
+        '''select count(*) from message''')  # 为什么返回值会是[(num,)]这么奇葩的东西
     total_message = total_message[0][0]
     print total_message
     total_page = 1
-    lastpage_num  = 0
+    lastpage_num = 0
     if total_message % PER_PAGE == 0:
-        total_page =  total_message / PER_PAGE
+        total_page = total_message / PER_PAGE
         if total_message != 0:
             lastpage_num = PER_PAGE
     else:
@@ -111,23 +111,24 @@ def public_timeline(page_number=1):
         lastpage_num = total_message % PER_PAGE
     begin = PER_PAGE*(page_number-1) + 1
     end = PER_PAGE
-    if page_number== total_page:
+    if page_number == total_page:
         end = total_message
     else:
         end = PER_PAGE*page_number
 
     print begin, end
 
-    return render_template('timeline.html', 
-            messages=query_db('''
+    return render_template('timeline.html',
+                           messages=query_db('''
                      select message.*, company.* from message, company
                      where message.company_id = company.company_id
-                     order by message.pub_date desc limit ?,?''', [begin-1, end-begin+1]), #表示从第begin-1个开始，取end-begin+1,如果要移植数据库注意
-            companys=query_db('''select company_name from company'''),
-            now_page=page_number,
-            total_page=total_page,
-            page_list=[i for i in range(1, total_page+1)],
-        )
+                     order by message.pub_date desc limit ?,?''', [begin-1, end-begin+1]),  # 表示从第begin-1个开始，取end-begin+1,如果要移植数据库注意
+                           companys=query_db(
+                           '''select company_name from company'''),
+                           now_page=page_number,
+                           total_page=total_page,
+                           page_list=[i for i in range(1, total_page+1)],
+                           )
 
 
 @app.route('/<company_name>/<int:page_number>/')
@@ -135,15 +136,16 @@ def public_timeline(page_number=1):
 def company_timeline(company_name, page_number=1):
     """Display's a company bullshit."""
     profile_company = query_db('select * from company where company_name= ?',
-                            [company_name], one=True)
+                               [company_name], one=True)
     if profile_company is None:
         abort(404)
-    total_message = query_db('''select count(*) from message where message.company_id = ?''', [profile_company['company_id']])
+    total_message = query_db('''select count(*) from message where message.company_id = ?''', [
+                             profile_company['company_id']])
     total_message = total_message[0][0]
     total_page = 1
-    lastpage_num  = 0
+    lastpage_num = 0
     if total_message % PER_PAGE == 0:
-        total_page =  total_message / PER_PAGE
+        total_page = total_message / PER_PAGE
         if total_message != 0:
             lastpage_num = PER_PAGE
     else:
@@ -151,7 +153,7 @@ def company_timeline(company_name, page_number=1):
         lastpage_num = total_message % PER_PAGE
     begin = PER_PAGE*(page_number-1) + 1
     end = PER_PAGE
-    if page_number== total_page:
+    if page_number == total_page:
         end = total_message
     else:
         end = PER_PAGE*page_number
@@ -159,14 +161,15 @@ def company_timeline(company_name, page_number=1):
             select message.*, company.* from message, company where
             company.company_id= message.company_id and company.company_id= ?
             order by message.pub_date desc limit ? , ?''',
-            [profile_company['company_id'], begin-1, end-begin+1]),
-            profile_company=profile_company,
-            companys=query_db('''select company_name from company'''),
-            now_page=page_number,
-            total_page=total_page,
-            page_list=[i for i in range(1, total_page+1)],
-            
-            )
+                                                              [profile_company['company_id'], begin-1, end-begin+1]),
+                           profile_company=profile_company,
+                           companys=query_db(
+                           '''select company_name from company'''),
+                           now_page=page_number,
+                           total_page=total_page,
+                           page_list=[i for i in range(1, total_page+1)],
+
+                           )
 
 
 @app.route('/add_message/<company_id>', methods=['POST'])
@@ -182,7 +185,6 @@ def add_message(company_id):
     return redirect(url_for('timeline'))
 
 
-
 @app.route('/add_company', methods=['GET', 'POST'])
 def add_company():
     """add the company"""
@@ -196,24 +198,26 @@ def add_company():
             db = get_db()
             db.execute('''insert into company(
               company_name) values (?)''',
-              [request.form['company_name']])
+                       [request.form['company_name']])
             db.commit()
             flash('add success')
             return redirect(url_for('company_timeline', company_name=request.form['company_name']))
     return render_template('register.html', error=error, companys=query_db('''select company_name from company'''))
+
 
 @app.route('/show/comments/<message_id>/')
 def show_comment(message_id):
     comments = query_db('''
     select * from comments where comments.message_id=?''', [message_id])
     print type(comments)
-    commentdict={}
+    commentdict = {}
     for i in range(len(comments)):
-        temp={}
-        temp['text']=comments[i]['comment_text']
-        temp['date']=comments[i]['pub_date']
-        commentdict[str(i)]=temp
+        temp = {}
+        temp['text'] = comments[i]['comment_text']
+        temp['date'] = comments[i]['pub_date']
+        commentdict[str(i)] = temp
     return jsonify(**commentdict)
+
 
 @app.route('/add/comment/<message_id>/', methods=['POST'])
 def add_comment(message_id):
@@ -225,7 +229,6 @@ def add_comment(message_id):
                       values (?,?,?)''', (text, message_id, int(time.time())))
         db.commit()
         return "success"
-
 
 
 @app.route("/xxoo")

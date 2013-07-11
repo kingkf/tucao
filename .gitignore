@@ -1,0 +1,6 @@
+*.pyc
+*.pyo
+*.swp
+gunicorn.log
+gunicorn_config.py
+miniTwit.db

@@ -1,8 +1,14 @@
 {% extends "layout.html" %}
-{% block title %}添加槽点{% endblock %}
+{% block title %}
+  添加槽点
+{% endblock %}
 {% block body %}
   <h2>添加槽点</h2>
-  {% if error %}<div class=error><strong>Error:</strong> {{ error }}</div>{% endif %}
+  {% if error %}
+    <div class=error>
+      <strong>Error:</strong> {{ error }}
+    </div>
+  {% endif %}
   <form action="" method=post>
     <dl>
       <dt>想黑谁?

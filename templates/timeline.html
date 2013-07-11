@@ -1,114 +1,111 @@
 {% extends "layout.html" %}
+
 {% block title %}
-    {% if profile_company %}
-        {{ profile_company.company_name}}'s Timeline
+  {% if profile_company %}
+    {{ profile_company.company_name}}'s Timeline
 	{% endif %}
 {% endblock %}
+
 {% block body %}
   <h2>{{ self.title() }}</h2>
   {% if profile_company %}
-      <div class=twitbox>
-          <h3>对于{{ profile_company.company_name}}你有啥不爽？</h3>
-        <form action="{{ url_for('add_message', company_id=profile_company.company_id) }}" method=post>
-          <p><input type=text name=text size=60><!--
-          --><input type=submit value="一吐为快">
-        </form>
-      </div>
+    <div class=twitbox>
+      <h3>对于{{ profile_company.company_name}}你有啥不爽？</h3>
+      <form action="{{ url_for('add_message', company_id=profile_company.company_id) }}" method=post>
+        <p><input type=text name=text size=60></p>
+        <p><input type=submit value="一吐为快"></p>
+      </form>
+    </div>
   {% endif %}
+
   <script type="text/javascript">
-	$(document).ready(function() {
-	 $('.comment').bind("click", function() {
-          var id = $(this).data('id');
-		  $.ajax({
-			  type:"GET",
-              url:"/show/comments/" + id +"/",
-			  beforeSend: function() {
-			  $(this).attr("disabled", true).val("请求中");
-			  },
-			  success:function(data) {
-				  var divbox = "";
-				  for (var i in data) {
-				      divbox += "<div>"+data[i].text+"</div>";
-				  }
-                  var str = "#comment_"+id;
-                  $(str).html(divbox);
-		          $(str).toggle();
-				  $("#form_"+id).toggle();
-			  }
+	  $(document).ready(function() {
+
+	    $('.comment').bind("click", function() {
+        var id = $(this).data('id');
+	  	  $.ajax({
+	  		  type: "GET",
+          url: "/show/comments/" + id +"/",
+	  		  beforeSend: function() {
+	  		    $(this).attr("disabled", true).val("请求中");
+	  		  },
+	  		  success: function(data) {
+	  			  var divbox = "";
+	  			  for (var i in data) {
+	  			    divbox += "<div>"+data[i].text+"</div>";
+	  			  }
+            var str = "#comment_"+id;
+            $(str).html(divbox);
+	  	      $(str).toggle();
+	  			  $("#form_"+id).toggle();
+	  		  }
+	  	  });
+	    }); 
+
+	    $('.submit_comment').click(function() {
+        var id = $(this).data('id');
+		  	var newcomment = $("#input_"+id).val();
+		  	$.ajax({
+           type: "POST",
+		  	   url: "/add/comment/"+id+"/",
+		  	   data: {'text':newcomment},
+		  	   success: function(data) {
+		  		   if (data=="success") {
+		  		     $("#input_"+id).val("");
+		  			   var comments = $("#comment_"+id).html();
+		  			   comments = comments + "<div>" + newcomment + "</div>";
+		  			   $("#comment_"+id).html(comments);
+		  		   }
+		  	   }
+		    });
 		  });
-		  
-	 }); 
-	 $('.submit_comment').click(function() {
-			 var id = $(this).data('id');
-			 var newcomment = $("#input_"+id).val();
-			 $.ajax({
-               type: "POST",
-			   url: "/add/comment/"+id+"/",
-			   data: {'text':newcomment},
-			   success: function(data) {
-				   if (data=="success") {
-				      $("#input_"+id).val("");
-					  var comments = $("#comment_"+id).html();
-					  comments = comments + "<div>"+newcomment+"</div>";
-					  $("#comment_"+id).html(comments);
-
-				   }
-			   }
-			   });
-			 });
-
-	 
-
-
- });
+    });
   </script>
   {% for message in messages %}
-  <ul class=messages>
-  <li><p>
-      <strong><a href="{{ url_for('company_timeline', company_name=message.company_name)
-      }}">{{ message.company_name }}</a></strong>
-	  {{ message.text }} 
-	  <small>&mdash; {{ message.pub_date|datetimeformat }}  <a class="comment" data-id="{{message.message_id}}" href="javascript:void(0);">评论</a></small>
-	  </p>
-	  <div id=comment_{{message.message_id}} style="display:none;">
-	  </div>
-	  <form method="POST" action="/add/comment/{{message.message_id}}/" style="display:none;" id=form_{{message.message_id}}>
-		  <input type="text" name="text" id=input_{{message.message_id}}>
-		  <input type="text" style="display:none;">
-		  <input type="button" value="发表评论" class=submit_comment data-id="{{message.message_id}}">
-      </form>
-
-  </li>
+    <ul class=messages>
+      <li>
+        <p>
+          <strong><a href="{{ url_for('company_timeline', company_name=message.company_name)
+            }}">{{ message.company_name }}</a></strong>
+	        {{ message.text }} 
+	        <small>&mdash; {{ message.pub_date|datetimeformat }}<a class="comment" data-id="{{message.message_id}}" href="javascript:void(0);">评论</a></small>
+	      </p>
+	      <div id=comment_{{message.message_id}} style="display:none;">
+	      </div>
+	      <form method="POST" action="/add/comment/{{message.message_id}}/" style="display:none;" id=form_{{message.message_id}}>
+	        <input type="text" name="text" id=input_{{message.message_id}}>
+	        <input type="text" style="display:none;">
+	        <input type="button" value="发表评论" class=submit_comment data-id="{{message.message_id}}">
+        </form>
+      </li>
   {% else %}
-  <li><em> 现在还没有消息，添加点吧</em>
+    <li><em> 现在还没有消息，添加点吧</em>
   {% endfor %}
   </ul>
-  <div><a>{{total_page}}页</a>
-      {% if now_page > 1 %}
-        {% if profile_company %}
+  <div>
+    <a>{{total_page}}页</a>
+    {% if now_page > 1 %}
+      {% if profile_company %}
         <a href="/{{profile_company.company_name}}/{{now_page-1}}/">上一页</a>
-        {% else %}
+      {% else %}
         <a href="/public/page/{{now_page-1}}/">上一页</a>
-        {% endif %}
       {% endif %}
-      {% for i in page_list %}
-        {% if i == now_page %}
-          <a>{{i}}</a>
-        {% elif profile_company %}
+    {% endif %}
+    {% for i in page_list %}
+      {% if i == now_page %}
+        <a>{{i}}</a>
+      {% elif profile_company %}
         <a href="/{{profile_company.company_name}}/{{i}}/">{{i}}</a>
-        {% else %}
+      {% else %}
         <a href="/public/page/{{i}}/">{{i}}</a>
-        {% endif %}
-      {% endfor %}
-      {% if now_page > 0 and now_page < total_page %}
-        {% if profile_company %}
-        <a href="/{{profile_company.company_name}}/{{now_page+1}}/">下一页</a>
-        {% else %}
-        <a href="/public/page/{{now_page+1}}/">下一页</a>
-        {% endif %}
       {% endif %}
-
+    {% endfor %}
+    {% if now_page > 0 and now_page < total_page %}
+      {% if profile_company %}
+        <a href="/{{profile_company.company_name}}/{{now_page+1}}/">下一页</a>
+      {% else %}
+        <a href="/public/page/{{now_page+1}}/">下一页</a>
+      {% endif %}
+    {% endif %}
   </div>
-
-
 {% endblock %}

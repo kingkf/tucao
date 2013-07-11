@@ -74,6 +74,7 @@
 	  </div>
 	  <form method="POST" action="/add/comment/{{message.message_id}}/" style="display:none;" id=form_{{message.message_id}}>
 		  <input type="text" name="text" id=input_{{message.message_id}}>
+		  <input type="text" style="display:none;">
 		  <input type="button" value="发表评论" class=submit_comment data-id="{{message.message_id}}">
       </form>
 

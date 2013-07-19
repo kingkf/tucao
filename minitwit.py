@@ -15,6 +15,7 @@ from datetime import datetime
 from flask import Flask, request, session, url_for, redirect, \
     render_template, abort, g, flash, _app_ctx_stack, jsonify
 import os
+import json
 
 
 # configuration
@@ -211,10 +212,10 @@ def show_comment(message_id):
     select * from comments where comments.message_id=?''', [message_id])
     print type(comments)
     commentdict = {}
-    for i in range(len(comments)):
+    for i, comment in enumerate(comments):
         temp = {}
-        temp['text'] = comments[i]['comment_text']
-        temp['date'] = comments[i]['pub_date']
+        temp['text'] = comment['comment_text']
+        temp['date'] = comment['pub_date']
         commentdict[str(i)] = temp
     return jsonify(**commentdict)
 
